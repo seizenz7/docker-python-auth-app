@@ -2,7 +2,7 @@
 Project ini mendefinisikan aplikasi yang dipaketkan menggunakan Docker dan dijalankan bersama database PostgreSQL menggunakan Docker Compose.
 
 Komponen utama:
-- app: service aplikasi.
+- app: service flask app.
 - database: service PostgreSQL.
 
 # Prerequisites
@@ -14,8 +14,9 @@ Komponen utama:
 
 1. Buat file [Dockerfile](./Dockerfile)
 2. Buat file [docker-compose.yaml](./docker-compose.yaml)
-3. Lakukan build docker images dengan menggunakan perintah `docker compose -f docker-compose.yaml build`
-4. Jalankan service aplikasi dengan menggunakan perintah `docker compose up -d`
+3. Buat file .env seperti pada contoh [.env-example](./.env-example)
+4. Lakukan build docker images dengan menggunakan perintah `docker compose -f docker-compose.yaml build`
+5. Jalankan service aplikasi dengan menggunakan perintah `docker compose up -d`
 
 # Screenshot
 
