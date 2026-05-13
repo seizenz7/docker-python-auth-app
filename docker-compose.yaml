@@ -1,0 +1,58 @@
+version: '3.8'
+# Definisi service compose yang terdiri dari dua layanan utama: aplikasi Flask (application) dan database PostgreSQL (db) (sesuai ketentuan detail assignment poin 4).
+services:
+  # Definisi layanan untuk aplikasi Flask.
+  application:
+    # Gunakan build context untuk membangun image dari Dockerfile yang ada di direktori saat ini.
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Memberikan nama container (sesuai ketentuan detail assignment poin 12) untuk layanan aplikasi Flask agar lebih mudah diidentifikasi saat menjalankan perintah Docker, yang membantu dalam manajemen container dan debugging.
+    container_name: login-service
+    # Mapping port 8098 di host ke port 5000 (port default aplikasi Flask) di container, sehingga pengguna dapat mengakses aplikasi melalui http://localhost:8098 (sesuai ketentuan detail assignment poin 9).
+    ports:
+      - "8098:5000"
+    # Mengatur variabel lingkungan DATABASE_URL untuk aplikasi Flask agar dapat terhubung ke database PostgreSQL dengan menggunakan nilai yang diambil dari file .env, yang memungkinkan aplikasi untuk mengakses database dengan benar menggunakan kredensial yang telah ditentukan (sesuai ketentuan detail assignment poin 10).
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/${DB_NAME}
+    # Menambahkan dependensi pada layanan database PostgreSQL dengan kondisi bahwa layanan database harus dalam keadaan sehat (healthy) sebelum layanan aplikasi Flask dijalankan, yang membantu memastikan bahwa aplikasi Flask hanya akan mencoba terhubung ke database setelah database siap menerima koneksi, sehingga mencegah kegagalan koneksi dan meningkatkan stabilitas aplikasi.
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    # Menghubungkan layanan aplikasi Flask ke jaringan yang sama dengan layanan database PostgreSQL untuk memungkinkan komunikasi antar container (sesuai ketentuan detail assignment poin 7).
+    networks:
+      - auth-network
+
+  # Definisi layanan untuk database PostgreSQL.
+  db:
+    # Menggunakan image PostgreSQL versi 15 berbasis Alpine yang ringan untuk layanan database aplikasi Flask (sesuai ketentuan detail assignment poin 5).
+    image: postgres:15-alpine
+    # Memberikan nama container (sesuai ketentuan detail assignment poin 12) untuk layanan database PostgreSQL agar lebih mudah diidentifikasi saat menjalankan perintah Docker, yang membantu dalam manajemen container dan debugging.
+    container_name: db
+    # Mengatur variabel lingkungan untuk database PostgreSQL. Variabel ini digunakan untuk mengkonfigurasi database saat container dijalankan, termasuk nama database, user, dan password yang diambil dari file .env untuk memastikan bahwa database dapat diakses dengan kredensial yang benar (sesuai ketentuan detail assignment poin 6).
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    # Mount volume db_data ke direktori data PostgreSQL di dalam container untuk menyimpan data database secara persisten, sehingga data tetap ada meskipun container dihentikan atau dihapus (sesuai ketentuan detail assignment poin 8).
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    # Menambahkan healthcheck untuk memantau kesehatan layanan database PostgreSQL dengan menggunakan perintah pg_isready untuk memeriksa apakah database siap menerima koneksi, dengan interval 10 detik, timeout 5 detik, dan 5 kali percobaan sebelum dianggap gagal, membantu memastikan bahwa layanan database tetap sehat dan dapat merespons permintaan koneksi dengan benar.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME} -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+    # Menghubungkan layanan database PostgreSQL ke jaringan yang sama dengan layanan aplikasi Flask untuk memungkinkan komunikasi antar container (sesuai ketentuan detail assignment poin 7).
+    networks:
+      - auth-network
+# Definisi volume bernama db_data untuk menyimpan data database secara persisten di luar container, yang memungkinkan data tetap ada meskipun container dihentikan atau dihapus.
+volumes:
+  db_data:
+# Definisi jaringan bernama auth-network dengan driver bridge untuk menghubungkan layanan aplikasi Flask dan database PostgreSQL, memungkinkan komunikasi antar container di dalam jaringan yang sama (sesuai ketentuan detail assignment poin 7).
+networks:
+  auth-network:
+    driver: bridge
