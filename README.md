@@ -4,6 +4,9 @@
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![Flask](https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/postgresql-4169e1?style=for-the-badge&logo=postgresql&logoColor=white)
+Komponen utama:
+- app: service flask app.
+- database: service PostgreSQL.
 
 🌎 **Language:** [Bahasa Indonesia](#bahasa-indonesia) | [English](#english)
 
@@ -41,6 +44,11 @@ Untuk mematuhi standar industri DevOps dan DevSecOps, project ini mengimplementa
 git clone https://github.com/seizenz7/docker-python-auth-app.git
 cd docker-python-auth-app
 ```
+1. Buat file [Dockerfile](./Dockerfile)
+2. Buat file [docker-compose.yaml](./docker-compose.yaml)
+3. Buat file .env seperti pada contoh [.env-example](./.env-example)
+4. Lakukan build docker images dengan menggunakan perintah `docker compose -f docker-compose.yaml build`
+5. Jalankan service aplikasi dengan menggunakan perintah `docker compose up -d`
 
 **2. Konfigurasi Environment**
 Buat file `.env` di direktori utama. Anda dapat menggunakan `.env-example` yang disediakan sebagai template:
@@ -151,4 +159,6 @@ docker compose down
 #### 3. Login Page
 ![](./screenshot/login-page.png)
 #### 4. User Dashboard (Home)
+![](./screenshot/home-page.png)
+- Home
 ![](./screenshot/home-page.png)
